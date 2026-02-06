@@ -130,6 +130,8 @@ int main(void)
   MX_SPI1_Init();
   MX_FMC_Init();
   MX_I2C1_Init();
+  MX_I2C2_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
 init_tft_framebuf();
 	HAL_UART_Transmit(&huart1,(uint8_t *)"stm32h7",7,10);
