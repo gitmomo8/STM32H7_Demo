@@ -21,6 +21,7 @@
 #include "dma.h"
 #include "i2c.h"
 #include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 #include "fmc.h"
@@ -130,6 +131,10 @@ int main(void)
   MX_SPI1_Init();
   MX_FMC_Init();
   MX_I2C1_Init();
+  MX_I2C2_Init();
+  MX_SPI2_Init();
+  MX_TIM1_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 init_tft_framebuf();
 	HAL_UART_Transmit(&huart1,(uint8_t *)"stm32h7",7,10);
