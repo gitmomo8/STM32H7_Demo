@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "dma.h"
+#include "i2c.h"
 #include "spi.h"
 #include "usart.h"
 #include "gpio.h"
@@ -128,6 +129,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_SPI1_Init();
   MX_FMC_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
 init_tft_framebuf();
 	HAL_UART_Transmit(&huart1,(uint8_t *)"stm32h7",7,10);

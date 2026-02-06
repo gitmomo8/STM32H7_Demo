@@ -4,6 +4,7 @@
 "stm32h7_demo\gpio.o"
 "stm32h7_demo\dma.o"
 "stm32h7_demo\fmc.o"
+"stm32h7_demo\i2c.o"
 "stm32h7_demo\spi.o"
 "stm32h7_demo\usart.o"
 "stm32h7_demo\stm32h7xx_it.o"
