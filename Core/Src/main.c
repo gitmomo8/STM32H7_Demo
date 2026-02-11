@@ -56,6 +56,29 @@ static void MPU_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+int fputc(int ch, FILE *f) {
+    HAL_UART_Transmit(&huart1, (uint8_t*)&ch, 1, 0x1FF);
+    return ch;
+}
+int fgetc(FILE *f) {
+    uint8_t ch;
+    HAL_UART_Receive(&huart1, &ch, 1, HAL_MAX_DELAY);
+    return ch;
+}
+
+void StartTask(void *pvParameters) {
+    for(;;) {
+        HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+}
+
+void UsartTask(void *pvParameters) {
+    for(;;) {
+        printf("UsartTask\r\n");
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
 
 /* USER CODE END 0 */
 
@@ -93,6 +116,13 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+  
+	printf("STM32H7\r\n");
+	printf("中文测试\r\n");
+    
+    xTaskCreate(StartTask, "StartTask", 256, NULL, 1, NULL);
+    xTaskCreate(UsartTask, "UsartTask", 256, NULL, 1, NULL);
+    vTaskStartScheduler(); // 启动调度
 
   /* USER CODE END 2 */
 
@@ -196,6 +226,28 @@ void MPU_Config(void)
   /* Enables the MPU */
   HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
 
+}
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM6 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM6)
+  {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
 }
 
 /**
