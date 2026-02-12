@@ -69,7 +69,7 @@ int fgetc(FILE *f) {
 void StartTask(void *pvParameters) {
     for(;;) {
         HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
-        vTaskDelay(pdMS_TO_TICKS(500));
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }
 
