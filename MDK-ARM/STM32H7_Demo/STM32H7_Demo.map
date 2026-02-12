@@ -4267,7 +4267,7 @@ Image Symbol Table
     NMI_Handler                              0x080044e1   Thumb Code     4  stm32h7xx_it.o(.text.NMI_Handler)
     PendSV_Handler                           0x08004561   Thumb Code   100  port.o(.text.PendSV_Handler)
     SVC_Handler                              0x08004971   Thumb Code    36  port.o(.text.SVC_Handler)
-    StartTask                                0x08004999   Thumb Code    30  main.o(.text.StartTask)
+    StartTask                                0x08004999   Thumb Code    28  main.o(.text.StartTask)
     SysTick_Handler                          0x080049b9   Thumb Code    66  port.o(.text.SysTick_Handler)
     SystemClock_Config                       0x08004a01   Thumb Code   230  main.o(.text.SystemClock_Config)
     SystemInit                               0x08004ae9   Thumb Code   396  system_stm32h7xx.o(.text.SystemInit)
@@ -4462,8 +4462,8 @@ Memory Map of the image
     0x08004962   0x08004962   0x0000000e   PAD
     0x08004970   0x08004970   0x00000024   Code   RO         1848    .text.SVC_Handler   port.o
     0x08004994   0x08004994   0x00000004   PAD
-    0x08004998   0x08004998   0x0000001e   Code   RO           15    .text.StartTask     main.o
-    0x080049b6   0x080049b6   0x00000002   PAD
+    0x08004998   0x08004998   0x0000001c   Code   RO           15    .text.StartTask     main.o
+    0x080049b4   0x080049b4   0x00000004   PAD
     0x080049b8   0x080049b8   0x00000042   Code   RO         1866    .text.SysTick_Handler  port.o
     0x080049fa   0x080049fa   0x00000006   PAD
     0x08004a00   0x08004a00   0x000000e6   Code   RO           23    .text.SystemClock_Config  main.o
@@ -4638,7 +4638,7 @@ Image component sizes
        192          0          0          0          0       2943   gpio.o
       1542          0          0          0      20508       4966   heap_4.o
        238          0          0          0          0       2095   list.o
-       590          0         57          0          0       8184   main.o
+       588          0         57          0          0       8184   main.o
       1104         16          0          4          5       3923   port.o
         44         12        664          0       1024        840   startup_stm32h743xx.o
        204          0          0          5          4      13778   stm32h7xx_hal.o
@@ -4661,7 +4661,7 @@ Image component sizes
     ----------------------------------------------------------------------
      28084        464        818         20      22072     243613   Object Totals
          0          0         32          0          0          0   (incl. Generated)
-       318         16          0          3          7          0   (incl. Padding)
+       320         16          0          3          7          0   (incl. Padding)
 
     ----------------------------------------------------------------------
 
