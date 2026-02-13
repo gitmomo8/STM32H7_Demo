@@ -18,12 +18,14 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -56,6 +58,9 @@ static void MPU_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+/* 被系统调用 */
+volatile uint32_t ulHighFrequencyTimerTicks = 0UL;
+
 int fputc(int ch, FILE *f) {
     HAL_UART_Transmit(&huart1, (uint8_t*)&ch, 1, 0x1FF);
     return ch;
@@ -69,13 +74,26 @@ int fgetc(FILE *f) {
 void StartTask(void *pvParameters) {
     for(;;) {
         HAL_GPIO_TogglePin(LED_GPIO_Port,LED_Pin);
-        vTaskDelay(pdMS_TO_TICKS(100));
+        vTaskDelay(pdMS_TO_TICKS(1));
     }
 }
 
 void UsartTask(void *pvParameters) {
+    
+    uint8_t pcWriteBuffer[512];
+    
     for(;;) {
-        printf("UsartTask\r\n");
+        memset(pcWriteBuffer, 0, strlen((char *)pcWriteBuffer));
+        printf("=================================================\r\n");
+        printf("任务名      任务状态 优先级   剩余栈 任务序号\r\n");
+        vTaskList((char *)&pcWriteBuffer);
+        printf("%s\r\n", pcWriteBuffer);
+
+        memset(pcWriteBuffer, 0, strlen((char *)pcWriteBuffer));
+        printf("\r\n任务名       运行计数         使用率\r\n");
+        vTaskGetRunTimeStats((char *)&pcWriteBuffer);
+        printf("%s\r\n", pcWriteBuffer);
+        vTaskDelay(100);
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
 }
@@ -115,7 +133,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART1_UART_Init();
+  MX_TIM1_Init();
+  MX_TIM7_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
+  
+  HAL_TIM_Base_Start_IT(&htim7);
   
 	printf("STM32H7\r\n");
 	printf("中文测试\r\n");
@@ -152,7 +175,7 @@ void SystemClock_Config(void)
 
   /** Configure the main internal regulator output voltage
   */
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
   while(!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {}
 
@@ -163,12 +186,12 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLM = 5;
-  RCC_OscInitStruct.PLL.PLLN = 192;
+  RCC_OscInitStruct.PLL.PLLM = 2;
+  RCC_OscInitStruct.PLL.PLLN = 64;
   RCC_OscInitStruct.PLL.PLLP = 2;
-  RCC_OscInitStruct.PLL.PLLQ = 2;
+  RCC_OscInitStruct.PLL.PLLQ = 4;
   RCC_OscInitStruct.PLL.PLLR = 2;
-  RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_2;
+  RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_3;
   RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
   RCC_OscInitStruct.PLL.PLLFRACN = 0;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -189,7 +212,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
   RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
   {
     Error_Handler();
   }
@@ -246,6 +269,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
+  
+    if(htim->Instance == TIM7)
+    {
+        ulHighFrequencyTimerTicks++;
+    }
 
   /* USER CODE END Callback 1 */
 }
