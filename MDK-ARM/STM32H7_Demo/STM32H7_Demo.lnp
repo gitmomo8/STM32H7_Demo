@@ -2,6 +2,7 @@
 "stm32h7_demo\startup_stm32h743xx.o"
 "stm32h7_demo\main.o"
 "stm32h7_demo\gpio.o"
+"stm32h7_demo\tim.o"
 "stm32h7_demo\usart.o"
 "stm32h7_demo\stm32h7xx_it.o"
 "stm32h7_demo\stm32h7xx_hal_msp.o"

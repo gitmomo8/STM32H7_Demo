@@ -1,5 +1,5 @@
-stm32h7_demo/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
-  ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h \
+stm32h7_demo/tim.o: ..\Core\Src\tim.c ..\Core\Inc\tim.h \
+  ..\Core\Inc\main.h ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h \
   ..\Core\Inc\stm32h7xx_hal_conf.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_def.h \
@@ -31,5 +31,4 @@ stm32h7_demo/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\FreeRTOS\include\projdefs.h ..\FreeRTOS\include\portable.h \
   ..\FreeRTOS\include\deprecated_definitions.h \
   ..\FreeRTOS\r0p1\portmacro.h ..\FreeRTOS\include\mpu_wrappers.h \
-  ..\FreeRTOS\include\task.h ..\FreeRTOS\include\list.h \
-  ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h
+  ..\FreeRTOS\include\task.h ..\FreeRTOS\include\list.h
