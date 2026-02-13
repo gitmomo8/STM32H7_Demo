@@ -1,6 +1,5 @@
-stm32h7_demo/stm32h7xx_hal_flash_ex.o: \
-  ..\Drivers\STM32H7xx_HAL_Driver\Src\stm32h7xx_hal_flash_ex.c \
-  ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h \
+stm32h7_demo/spi.o: ..\Core\Src\spi.c ..\Core\Inc\spi.h \
+  ..\Core\Inc\main.h ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal.h \
   ..\Core\Inc\stm32h7xx_hal_conf.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_rcc.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_def.h \
@@ -29,4 +28,9 @@ stm32h7_demo/stm32h7xx_hal_flash_ex.o: \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_tim.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_tim_ex.h \
   ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_uart.h \
-  ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_uart_ex.h
+  ..\Drivers\STM32H7xx_HAL_Driver\Inc\stm32h7xx_hal_uart_ex.h \
+  ..\FreeRTOS\include\FreeRTOS.h ..\FreeRTOS\FreeRTOSConfig.h \
+  ..\FreeRTOS\include\projdefs.h ..\FreeRTOS\include\portable.h \
+  ..\FreeRTOS\include\deprecated_definitions.h \
+  ..\FreeRTOS\r0p1\portmacro.h ..\FreeRTOS\include\mpu_wrappers.h \
+  ..\FreeRTOS\include\task.h ..\FreeRTOS\include\list.h
