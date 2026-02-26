@@ -98,6 +98,84 @@ void UsartTask(void *pvParameters) {
     }
 }
 
+
+void Set_GPIO_EXTI(void)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin : PD8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI1_IRQn);
+
+}
+
+void Set_GPIO_OUTPUT(void)
+{
+
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOE, GPIO_PIN_1, GPIO_PIN_SET);
+
+  /*Configure GPIO pin : PD8 */
+  GPIO_InitStruct.Pin = GPIO_PIN_1;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+}
+
+void SwitchTo_EXTI(void)
+{
+  // 先取消输出模式配置
+  HAL_GPIO_DeInit(GPIOE, GPIO_PIN_1);
+
+  // 重新配置为外部中断模式
+  Set_GPIO_EXTI();
+}
+
+void SwitchTo_Output(void)
+{
+  // 先取消中断模式配置
+  HAL_GPIO_DeInit(GPIOE, GPIO_PIN_1);
+
+  // 重新配置为输出模式
+  Set_GPIO_OUTPUT();
+}
+
+uint8_t flag = 0;
+
+void EXTI1_IRQHandler(void)
+{
+    if (__HAL_GPIO_EXTI_GET_IT(GPIO_PIN_1) != RESET)
+    {
+        // 清除中断标志
+        __HAL_GPIO_EXTI_CLEAR_IT(GPIO_PIN_1);
+
+        // 在这里编写你想处理的逻辑
+        // 例如，控制其他硬件，或者执行任务
+        // 你可以在这里设置某些标志位、发送信号或处理数据等
+        
+        // 示例：切换一个 LED 或执行某个操作
+//        HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0);  // 例如：切换一个 LED 状态
+        flag = 1;
+    }
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -143,9 +221,22 @@ int main(void)
 	printf("STM32H7\r\n");
 	printf("中文测试\r\n");
     
-    xTaskCreate(StartTask, "StartTask", 256, NULL, 1, NULL);
-    xTaskCreate(UsartTask, "UsartTask", 256, NULL, 1, NULL);
-    vTaskStartScheduler(); // 启动调度
+    Set_GPIO_OUTPUT();
+    printf("输出模式\r\n");
+    
+    for(uint8_t i = 0;i < 10;i++)
+    {
+        HAL_GPIO_TogglePin(GPIOE,GPIO_PIN_1);
+        HAL_Delay(100);
+    }
+    
+    SwitchTo_EXTI();
+    printf("外部中断模式\r\n");
+    
+    
+//    xTaskCreate(StartTask, "StartTask", 256, NULL, 1, NULL);
+//    xTaskCreate(UsartTask, "UsartTask", 256, NULL, 1, NULL);
+//    vTaskStartScheduler(); // 启动调度
 
   /* USER CODE END 2 */
 
@@ -156,6 +247,13 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+      
+      if(flag == 1)
+      {
+          HAL_Delay(100);
+        printf("触发外部中断\r\n");
+          flag = 0;
+      }
   }
   /* USER CODE END 3 */
 }
