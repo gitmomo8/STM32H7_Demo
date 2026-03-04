@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_PWR_LDO_SUPPLY,USE_HAL_DRIVER,STM32H743xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../FreeRTOS;../FreeRTOS/include;../FreeRTOS/r0p1</IncludePath>
+              <IncludePath>../Core/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc;../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32H7xx/Include;../Drivers/CMSIS/Include;../FreeRTOS;../FreeRTOS/include;../FreeRTOS/r0p1;..\User</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -834,6 +834,21 @@
               <FileType>1</FileType>
               <FilePath>..\FreeRTOS\queue.c</FilePath>
             </File>
+            <File>
+              <FileName>timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FreeRTOS\timers.c</FilePath>
+            </File>
+            <File>
+              <FileName>stream_buffer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FreeRTOS\stream_buffer.c</FilePath>
+            </File>
+            <File>
+              <FileName>event_groups.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\FreeRTOS\event_groups.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -850,6 +865,9 @@
               <FilePath>..\FreeRTOS\r0p1\port.c</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>User</GroupName>
         </Group>
         <Group>
           <GroupName>::CMSIS</GroupName>

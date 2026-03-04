@@ -62,7 +62,6 @@ FreeRTOS/Source/tasks.c for limitations. */
 #if defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__)
 	#include <stdint.h>
 	extern uint32_t SystemCoreClock;
-	void vGenerateM7ToM4Interrupt( void * xUpdatedMessageBuffer );
 #endif
 
 #define configUSE_PREEMPTION                    1
@@ -144,10 +143,6 @@ header file. */
 #define vPortSVCHandler    SVC_Handler
 #define xPortPendSVHandler PendSV_Handler
 #define xPortSysTickHandler SysTick_Handler
-
-/* Override the default implementation of sbSEND_COMPLETED so the macro creates
-an interrupt in the M4 core.  See the comments at the top of main.c. */
-#define sbSEND_COMPLETED( pxStreamBuffer ) vGenerateM7ToM4Interrupt( pxStreamBuffer )
 
 #endif /* FREERTOS_CONFIG_H */
 
