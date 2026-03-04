@@ -25,7 +25,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "string.h"
+#include <string.h>
+#include <stdio.h>
+
+#include "FreeRTOS.h"
+#include "task.h"
 #include "log.h"
 /* USER CODE END Includes */
 
