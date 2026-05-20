@@ -17,6 +17,8 @@ void Usart_Task(void *pvParameters)
 {
     uint8_t pcWriteBuffer[512];
 
+
+    
     for (;;)
     {
         memset(pcWriteBuffer, 0, strlen((char *)pcWriteBuffer));
