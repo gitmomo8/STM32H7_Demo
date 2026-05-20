@@ -18,9 +18,13 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -30,6 +34,10 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "log.h"
+#include "task_led.h"
+#include "task_usart.h"
+#include "task_pwm.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,83 +72,11 @@ static void MPU_Config(void);
 /* USER CODE BEGIN 0 */
 int fputc(int ch, FILE *f)
 {
-    HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY); /* 发送一个字符 */
-    return ch;                                                    /* 返回写入的字符 */
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
+  return ch;
 }
 
-/* 被系统调用 */
 volatile uint32_t ulHighFrequencyTimerTicks = 0UL;
-
-void StartTask(void *pvParameters)
-{
-    for (;;)
-    {
-        HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
-        vTaskDelay(pdMS_TO_TICKS(500));
-    }
-}
-
-
-
-void UsartTask(void *pvParameters)
-{
-    uint8_t pcWriteBuffer[512];
-
-    for (;;)
-    {
-        memset(pcWriteBuffer, 0, strlen((char *)pcWriteBuffer));
-        printf("=================================================\r\n");
-        printf("任务名      任务状态 优先级   剩余栈 任务序号\r\n");
-        vTaskList((char *)&pcWriteBuffer);
-        printf("%s\r\n", pcWriteBuffer);
-
-        memset(pcWriteBuffer, 0, strlen((char *)pcWriteBuffer));
-        printf("\r\n任务名       运行计数         使用率\r\n");
-        vTaskGetRunTimeStats((char *)&pcWriteBuffer);
-        printf("%s\r\n", pcWriteBuffer);
-
-        vTaskDelay(pdMS_TO_TICKS(2000));
-    }
-}
-
-static void Set_PWM(uint8_t pwm)
-{
-    uint32_t ccr_value = 0;
-
-    if (pwm > 100)
-    {
-        pwm = 100;
-    }
-    
-    ccr_value = pwm * 10;
-
-    if (ccr_value > 999)
-    {
-        ccr_value = 999;
-    }
-
-    /* 更新定时器 1 通道 1 的捕获/比较寄存器值，立即改变 PWM 占空比 */
-    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, ccr_value);
-} 
-
-void PWMTask(void *pvParameters)
-{
-    for (;;)
-    {
-        for(uint8_t i = 0;i <= 100;i++)
-        {
-            Set_PWM(i);
-            LOG(LOG_LEVEL_DEBUG, "占空比为 %d",i);
-            vTaskDelay(pdMS_TO_TICKS(50));
-        }
-        for(uint8_t i = 100;i >= 1;i--)
-        {
-            Set_PWM(i);
-            LOG(LOG_LEVEL_DEBUG, "占空比为 %d",i);
-            vTaskDelay(pdMS_TO_TICKS(50));
-        }
-    }
-}
 
 /* USER CODE END 0 */
 
@@ -157,6 +93,14 @@ int main(void)
 
   /* MPU Configuration--------------------------------------------------------*/
   MPU_Config();
+
+  /* Enable the CPU Cache */
+
+  /* Enable I-Cache---------------------------------------------------------*/
+  SCB_EnableICache();
+
+  /* Enable D-Cache---------------------------------------------------------*/
+  SCB_EnableDCache();
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -176,35 +120,72 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USART1_UART_Init();
   MX_TIM7_Init();
   MX_TIM1_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
-    HAL_TIM_Base_Start_IT(&htim7);
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+  HAL_TIM_Base_Start_IT(&htim7);
+  HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
-    printf("Hello 默认输出\r\n");
-    for (uint8_t i = 1; i <= 3; i++)
-    {
-        LOG(i, "log 输出测试");
-    }
+  log_init();
 
-    xTaskCreate(StartTask, "StartTask", 256, NULL, 1, NULL);
-    xTaskCreate(UsartTask, "UsartTask", 256, NULL, 1, NULL);
-    xTaskCreate(PWMTask, "PWMTask", 256, NULL, 2, NULL);
-    vTaskStartScheduler(); // 启动调度
+  LOG_I("========== System Started ==========");
+  LOG_I("H7 Core Clock: %lu Hz", HAL_RCC_GetSysClockFreq());
+  LOG_I("Log System Initialized");
+
+  /* === Log Level Tests === */
+  LOG_D("This is a DEBUG message");
+  LOG_I("This is an INFO message");
+  LOG_W("This is a WARNING message");
+  LOG_E("This is an ERROR message");
+  LOG_F("This is a FATAL message");
+
+  /* === Format String Tests === */
+  LOG_I("String: %s", "Hello FreeRTOS");
+  LOG_I("Integer: %d, Hex: 0x%02X, Unsigned: %u", -42, 0xFF, 12345);
+  LOG_I("Pointer: %p", (void*)0x20000000);
+  LOG_I("Multiple args: %d %s %c %d", 1, "two", '3', 4);
+
+  /* === Edge Case Tests === */
+  LOG_I("Empty string: '%s'", "");
+  LOG_I("Very long number: %lu", 0xFFFFFFFFUL);
+  LOG_I("Negative hex: -1 -> 0x%08X", (unsigned int)-1);
+
+  /* === Hexdump Tests === */
+  uint8_t test_data[] = {0xDE, 0xAD, 0xBE, 0xEF};
+  LOG_I("Hexdump test (small):");
+  log_hexdump("TestData", test_data, sizeof(test_data));
+
+  /* Hexdump with 16+ bytes to test line wrapping */
+  uint8_t large_data[32];
+  for (int i = 0; i < 32; i++) large_data[i] = i;
+  LOG_I("Hexdump test (large, 32 bytes):");
+  log_hexdump("LargeData", large_data, sizeof(large_data));
+
+  /* === Multi-line Long String Test === */
+  LOG_I("--- Long string test start ---");
+  LOG_I("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456");
+  LOG_I("--- Long string test end ---");
+
+  Task_Led_Init();
+  Task_Usart_Init();
+//  Task_Pwm_Init();
+
+  vTaskStartScheduler();
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    while (1)
-    {
+  while (1)
+  {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    }
+  }
   /* USER CODE END 3 */
 }
 
@@ -318,10 +299,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   /* USER CODE BEGIN Callback 1 */
 
-    if (htim->Instance == TIM7)
-    {
-        ulHighFrequencyTimerTicks++;
-    }
+  if (htim->Instance == TIM7)
+  {
+    ulHighFrequencyTimerTicks++;
+  }
 
   /* USER CODE END Callback 1 */
 }
@@ -333,11 +314,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-    /* User can add his own implementation to report the HAL error return state */
-    __disable_irq();
-    while (1)
-    {
-    }
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+  while (1)
+  {
+  }
   /* USER CODE END Error_Handler_Debug */
 }
 #ifdef USE_FULL_ASSERT
@@ -351,8 +332,8 @@ void Error_Handler(void)
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-    /* User can add his own implementation to report the file name and line number,
-       ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
