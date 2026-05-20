@@ -25,6 +25,8 @@ extern UART_HandleTypeDef huart1;  /**< UART1句柄,用于日志输出 */
  * ============================================================================
  */
 
+
+ 
 /** @brief 线程安全互斥锁 */
 static SemaphoreHandle_t xLogMutex = NULL;
 
